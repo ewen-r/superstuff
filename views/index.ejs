@@ -1,0 +1,58 @@
+<%- include("partials/header.ejs") %>
+
+  <style>
+    h1 {
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      font-size: 60px;
+    }
+
+    .bg-body-tertiary {
+      background-color: aliceblue !important;
+      border: 3px solid blue;
+    }
+
+    .logo {
+      border: 5px solid red;
+      padding: 6px;
+      width: 100px;
+      height: 100px;
+    }
+
+    .container {
+      margin-bottom: 6rem;
+    }
+  </style>
+
+
+  <body>
+    <div class="container my-5 align-items-center">
+      <div class="p-5 text-center bg-body-tertiary rounded-3 align-items-center">
+        <div class="logo align-items-center d-inline-flex  rounded-4">
+          <svg xmlns=" http://www.w3.org/2000/svg" width="80" height="80" fill="red" class="bi bi-bag-heart-fill"
+            viewBox="0 0 16 16">
+            <%- locals.svgIconHtml %>
+          </svg>
+        </div>
+
+        <h1 class="text-body-emphasis">
+          <%= locals.titleText %>
+        </h1>
+
+        <p class="col-lg-8 mx-auto fs-5 text-muted">
+          <%= locals.paraText %>
+        </p>
+
+        <!-- Only show button if we have button text. -->
+        <% if (locals.buttonText) { %>
+          <div class="d-inline-flex gap-2 mb-5">
+            <a href="<%= locals.buttonHref %>"
+              class="d-inline-flex align-items-center btn btn-primary btn-lg px-4 rounded-pill">
+              <%= locals.buttonText %>
+            </a>
+          </div>
+          <% } %>
+      </div>
+    </div>
+
+
+    <%- include("partials/footer.ejs") %>
