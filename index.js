@@ -3,12 +3,13 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
 
+
+const PROJECT = "SuperStuff";
 /* Set dirname prefix for the current root so that files can be served.
  * e.g res.sendFile(_dirname + '/web/index.html'); */
 const _dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
-const port = 3000;
-
+const PORT = 3000;
 
 let username = "";
 let users = [];
@@ -23,93 +24,80 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 
-/** main
- * - Configure and Start the server.
- */
-function main() {
-  console.log("main()");
+// Handle GET requests to "/"
+app.get('/',
+  (req, res) => {
+    console.debug("GET \"/\":");
 
-  // Handle GET requests to "/"
-  app.get('/',
-    (req, res) => {
-      console.debug("GET \"/\":");
+    // Default case... Presume User is not logged in.
+    let ejsOpts = {
+      svgIconHtml: superShopSvg,
+      titleText: "SuperStuff",
+      paraText: "Never to be missed offers await.",
+      buttonText: "Sign up now!",
+      buttonHref: "/signup"
+    };
 
-      // Default case... Presume User is not logged in.
-      let ejsOpts = {
-        svgIconHtml: superShopSvg,
-        titleText: "SuperStuff",
-        paraText: "Never to be missed offers await.",
-        buttonText: "Sign up now!",
-        buttonHref: "/signup"
-      };
+    if (username) {
+      ejsOpts.paraText = `Welcome back ${username}.`;
+      ejsOpts.buttonText = "Shop now!";
+      ejsOpts.buttonHref = "/shop";
+    }
+    res.locals = ejsOpts;
+    res.render("index.ejs");
+  }
+);
 
-      if (username) {
-        ejsOpts.paraText = `Welcome back ${username}.`;
-        ejsOpts.buttonText = "Shop now!";
-        ejsOpts.buttonHref = "/shop";
+
+// Handle GET requests to "/signup"
+app.get('/signup',
+  (req, res) => {
+    console.debug("GET \"/signup\":");
+    res.render("signup.ejs");
+  }
+);
+
+
+// Handle GET requests to "/shop"
+app.get('/shop',
+  (req, res) => {
+    console.debug("GET \"/shop\":");
+    let ejsOpts = {
+      products: []
+    };
+    res.locals = ejsOpts;
+    res.render("shop.ejs");
+  }
+);
+
+
+// Handle POST to 
+app.post('/register',
+  (req, res) => {
+    console.debug("POST: \"/register\": ", req.body);
+
+    if (req.body.username && req.body.email && req.body.password) {
+      addUser(req.body.username, req.body.email, req.body.password);
+      // If remember was ticked.. pretend to be clever and remember user.
+      if (req.body.remember) {
+        username = req.body.username;
       }
-      res.locals = ejsOpts;
-      res.render("index.ejs");
+      res.redirect("/");
+    } else {
+      // Problem with sign-in..
+      console.error("Problem with sign in data.");
+      res.redirect("/signup");
     }
-  );
+  }
+);
 
 
-  // Handle GET requests to "/signup"
-  app.get('/signup',
-    (req, res) => {
-      console.debug("GET \"/signup\":");
-      res.render("signup.ejs");
-    }
-  );
-
-  // Handle GET requests to "/shop"
-  app.get('/shop',
-    (req, res) => {
-      console.debug("GET \"/shop\":");
-      let ejsOpts = {
-        products: []
-      };
-      res.locals = ejsOpts;
-      res.render("shop.ejs");
-    }
-  );
-
-  // Handle POST to 
-  app.post('/register',
-    (req, res) => {
-      console.debug("POST: \"/register\": ", req.body);
-
-      if (req.body.username && req.body.email && req.body.password) {
-        addUser(req.body.username, req.body.email, req.body.password);
-        // If remember was ticked.. pretend to be clever and remember user.
-        if (req.body.remember) {
-          username = req.body.username;
-        }
-        res.redirect("/");
-      } else {
-        // Problem with signin..
-        console.error("Problem with sign in data.")
-        res.redirect("/signup");
-      }
-    }
-  );
-
-
-  // Start the app, listening on port "port".
-  app.listen(port,
-    () => {
-      console.log(`main(): app is listening on port ${port}`);
-      console.log('main(): Open browser on http://localhost:3000/');
-    }
-  );
-
-}
 
 function haveUser(username) {
   console.log("haveUser", username);
   if (users.find(
     u => {
-      return u.username = username;
+      return (u.username == username);
     }
   )) {
     console.log(`Already have user ${username}`);
@@ -136,4 +124,12 @@ function addUser(username, userEmail, userPassword) {
   }
 }
 
-main();
+
+// Start the app, listening on PORT "PORT".
+app.listen(PORT,
+  () => {
+    console.log(`PROJECT "${PROJECT}": Server is running on http://localhost:${PORT}`);
+  }
+);
+
+
